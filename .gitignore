@@ -1,0 +1,10 @@
+# 运行产物（快照 CSV / 机器清单 / mapping 等）按约定输出到任务工作目录，不入本仓库
+
+# Node 与缓存
+node_modules/
+__pycache__/
+
+# 系统杂项
+Thumbs.db
+.DS_Store
+*.log

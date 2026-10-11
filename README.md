@@ -1,0 +1,94 @@
+<h1 align="center">zys-ima-categorize（ima 知识库整理）</h1>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-18%2B-green.svg" alt="Node.js 18+"></a>
+  <a href="#前置条件"><img src="https://img.shields.io/badge/Platform-WorkBuddy-lightgrey.svg" alt="Platform: WorkBuddy"></a>
+</p>
+
+把「已有但杂乱」的知识库，整理成**有定位、有目录、有 README 体系**的结构化知识库。
+
+适用于 [腾讯 ima](https://ima.qq.com/) 知识库与本地知识库。全流程六步、每步设验收门：
+存量探查 → 定位与内容规划 → 目录体系 → 骨架与 README → 迁移操作地图 → 收尾核验。
+其中迁移环节产出「操作地图」，交由 ima copilot 执行（ima 开放接口无移动能力），
+编制方再以快照比对做**独立核验**（总量不变 / 各目标数吻合 / 源位置清零）。
+
+> 方法论源于一次真实知识库整理案例：232 条存量、37 批迁移、231/231 成功、8 项 ID 比对全过。
+
+## 工作流程
+
+| 步骤 | 做什么 | 产出 |
+| --- | --- | --- |
+| 1 · 存量探查 | 导出全量快照（含 media_id）并通读聚类 | 存量画像（请用户校准） |
+| 2 · 定位与内容规划 | 多档位对比 + 用户拍板（**不代做决定**） | 定位与内容规划方案 |
+| 3 · 目录体系 | 从内容实际标签 / 主题**归纳**（不从外部框架演绎） | 内容目录体系方案 |
+| 4 · 骨架与 README | 建镜像骨架 + 根 / 板块两级 README | 骨架 + README 体系 |
+| 5 · 迁移操作地图 | 逐条归类 → 生成地图（md）+ 机器清单（CSV） | 操作地图（交 ima copilot 执行） |
+| 6 · 收尾核验 | 收回执 + 快照比对（守恒三项） | 核验报告 + 全案总结 |
+
+## 安装
+
+把下面这句话发给 WorkBuddy：
+
+```
+请帮我安装这个技能：https://github.com/zhouyubing/zys-ima-categorize
+```
+
+安装后在会话里说「整理知识库」即可触发，技能会引导完成全流程。
+
+## 前置条件
+
+| 条件 | 说明 |
+| --- | --- |
+| 宿主 | WorkBuddy 桌面端（脚本基于 Node.js，建议 18+） |
+| ima 通道 | 依赖官方「腾讯ima」技能包（ima-skills）的 `ima_api.cjs`（脚本会自动定位；未安装请先安装 ima 技能包） |
+| 凭证 | `~/.config/ima/`（client_id / api_key）或环境变量 `IMA_OPENAPI_CLIENTID` / `IMA_OPENAPI_APIKEY`；缺失时技能会引导到 [ima 开放接口页](https://ima.qq.com/agent-interface) 获取——**绝不搜索、不伪造凭证** |
+| 本地模式 | 整理本地目录时无需 ima 通道与凭证（走简化流程） |
+
+## 使用
+
+安装后直接说：
+
+> 帮我整理一下「XX」这个知识库
+
+技能进入六步流程（每步都有验收门，未验收不推进）：
+
+1. **存量探查**：先导出快照、给出存量画像（数量构成 / 类型分布 / 主题聚类），请你校准事实；
+2. **定位与内容规划**：按四组决策点给出多档位对比与推荐，由你逐项拍板；
+3. **目录体系**：从内容归纳板块与目录（一级 5–7 个、尽量少设二级），你验收后进入下一步；
+4. **骨架与 README**：建镜像骨架与 README 体系（ima 模式下空文件夹需客户端补建）；
+5. **迁移操作地图**：逐条归类（精迁）→ 生成「操作地图（md）+ 机器清单（CSV）」→ 交 ima copilot 执行移动（含强制「执行回执」要求）；
+6. **收尾核验**：核对回执 + 快照比对（守恒三项）→ 出全案总结与人工收尾清单。
+
+## 脚本
+
+| 脚本 | 用途 |
+| --- | --- |
+| `scripts/export_kb_snapshot.cjs` | 导出全量快照（含 media_id；文件夹行即 folder_id） |
+| `scripts/gen_migration_map.cjs` | 生成操作地图（md）+ 机器清单（CSV / JSON） |
+| `scripts/compare_snapshots.cjs` | 迁移前后快照比对（守恒核验） |
+
+依赖：Node.js 18+（零第三方依赖）；ima 通道经官方 `ima_api.cjs`（须 require 直调）。
+
+## 已知限制（实测）
+
+- ima 开放接口**无「移动 / 删除 / 改名 / 建夹」能力**——移动交 ima copilot（优先建议）或人工客户端操作；删除类操作永远走人工确认；
+- **空文件夹**在上传 / 接口层不可控——二级目录需在客户端补建；
+- 交接材料限 `.md`（地图）+ `.csv`（机器清单）——**ima 不支持上传 json**（JSON 仅作编制方存档）；
+- `ima_api.cjs` 须 **require 直调**（spawn 子进程会触发 EBUSY）——脚本已按此实现；
+- 部分条目标题含不间断空格（\xa0），显示无差但字节不同——以 media_id 精确匹配执行不受影响。
+
+## 免责声明
+
+- 本工具经**官方 ima 开放接口**读取数据、在本地生成格式化输出（输出限于你指定的目录），不修改知识库内容本身；
+- 一切移动类操作先有清单、后有执行（由你确认后交执行方），留存快照可回查，全程可逆；
+- 使用本项目产生的任何后果由使用者自行承担。
+
+## 反馈与贡献
+
+使用中遇到问题或有改进建议，欢迎[提 Issue](https://github.com/zhouyubing/zys-ima-categorize/issues)。
+如果这个小技能帮你把知识库理清楚了，给个 Star 是很好的鼓励。
+
+## License
+
+MIT
