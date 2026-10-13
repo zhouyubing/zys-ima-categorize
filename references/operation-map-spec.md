@@ -75,7 +75,7 @@
 ```json
 {
   "wechatarticle_cls1_……_1234567890123456": "01",
-  "markdown_a1b2c3d4e5f60718293a4b5c6d7e8f90_……": "02S"
+  "markdown_a1b2c3d4e5f60718_……": "02S"
 }
 ```
 
